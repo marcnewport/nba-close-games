@@ -1,0 +1,11 @@
+.ncge-insert {
+  color: #FFFFFF;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  left: 0;
+  background-color: #D71E54;
+  bottom: -2px;
+  font-size: 0.69em;
+  padding: 2px 0;
+}
