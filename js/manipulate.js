@@ -13,7 +13,8 @@ $('.gameItem').each(function() {
     //remove any previously inserted text
     $insert.remove();
   }
-  else {
+  //are there points on the board?
+  else if (awayScore || homeScore) {
     //figure out points difference
     if (awayScore === homeScore) {
       closeGame = true;
