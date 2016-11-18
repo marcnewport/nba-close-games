@@ -1,11 +1,13 @@
 .ncge-insert {
-  color: #FFFFFF;
-  position: absolute;
-  right: 0;
-  text-align: center;
-  left: 0;
-  background-color: #D71E54;
-  bottom: -2px;
-  font-size: 0.69em;
-  padding: 2px 0;
+    text-align: center;
+    text-shadow: 0 -1px #400919;
+    color: #FFFFFF;
+    background-color: #D71E54;
+    font-size: 15px;
+    padding: 2px 10px;
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    border-radius: 2px;
 }

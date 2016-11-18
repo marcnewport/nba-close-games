@@ -1,7 +1,7 @@
 {
   "name": "NBA Close Games",
   "description": "Highlight which games were within 3 points.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -12,7 +12,7 @@
     "default_icon": "icons/icon.png"
   },
   "background": {
-    "scripts": ["js/jquery.min.js", "js/background.js", "js/manipulate.js"],
+    "scripts": ["js/background.js", "js/manipulate.js"],
     "persistent": false
   },
   "content_scripts": [{
