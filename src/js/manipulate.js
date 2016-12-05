@@ -1,4 +1,16 @@
+
+// chrome.tabs.executeScript(null, { file:"js/jquery.min.js" }, function() {
+//
+// });
+
+console.log(options.load());
+
 document.querySelectorAll('.schedule-item').forEach(function(itemEl) {
+
+
+
+
+
 
     // Check if the game went into overtime
     var gameEl = itemEl.querySelector('.game-situation');

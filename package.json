@@ -1,0 +1,20 @@
+{
+  "name": "nba-close-games",
+  "version": "1.1.0",
+  "description": "A chrome extension for http://watch.nba.com that highlights if a game went into over-time or the score differential is 3 points or less. Useful if you don't watch the games live and have spoilers turned off.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild": "rm -rf dist/nba-close-games.zip",
+    "build": "zip -r dist/nba-close-games.zip src/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcnewport/nba-close-games.git"
+  },
+  "author": "marcnewport@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marcnewport/nba-close-games/issues"
+  },
+  "homepage": "https://github.com/marcnewport/nba-close-games#readme"
+}
