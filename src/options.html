@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Options | NBA Close Games</title>
+
+        <link rel="stylesheet" href="css/options.css" >
+
+        <script src="js/options.js"></script>
+        <script src="js/options-init.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="page-title">NBA Close Games options</h1>
+            <!-- <p class="page-instruction">Choose which things:</p> -->
+
+            <div class="item-list">
+                <div class="item">
+                    <input type="checkbox" name="range-narrow" id="range-narrow" />
+                    <label for="range-narrow">Games within 3 points</label>
+                </div>
+                <div class="item">
+                    <input type="checkbox" name="range-wide" id="range-wide" />
+                    <label for="range-wide">Games within 5 points</label>
+                </div>
+                <div class="item">
+                    <input type="checkbox" name="over-time" id="over-time">
+                    <label for="over-time">Games that go into over time</label>
+                </div>
+                <div class="item">
+                    <input type="checkbox" name="lead-changes" id="lead-changes">
+                    <label for="lead-changes">
+                        Games with at least
+                        <input type="number" name="lead-changes-amount" id="lead-changes-amount" max="99" />
+                        lead changes
+                    </label>
+                </div>
+                <div class="item">
+                    <input type="checkbox" name="triple-double" id="triple-double">
+                    <label for="triple-double">Player gets triple double</label>
+                </div>
+                <div class="item">
+                    <input type="checkbox" name="winning-shot" id="winning-shot">
+                    <label for="winning-shot">Game winning shot</label>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
