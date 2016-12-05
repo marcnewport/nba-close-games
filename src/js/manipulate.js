@@ -1,13 +1,9 @@
 
-// chrome.tabs.executeScript(null, { file:"js/jquery.min.js" }, function() {
-//
-// });
-
-console.log(options.load());
-
 document.querySelectorAll('.schedule-item').forEach(function(itemEl) {
 
-
+    for (var i = 0; i < options.list.length; i++) {
+        options.get(options.list[i]);
+    }
 
 
 
