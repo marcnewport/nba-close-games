@@ -5,25 +5,17 @@
  */
 var options = {
 
-    list: [
-        'range-narrow',
-        'range-wide',
-        'over-time',
-        'lead-changes',
-        'lead-changes-amount',
-        'triple-double',
-        'winning-shot'
-    ],
-
     // Our default values
     default: {
-        'range-narrow': 3,
-        'range-wide': 5,
         'over-time': true,
+        'range-narrow': true,
+        'range-narrow-amount': 3,
+        'range-wide': true,
+        'range-wide-amount': 5,
         'lead-changes': false,
         'lead-changes-amount': 10,
-        'triple-double': true,
-        'winning-shot': true
+        'triple-double': false,
+        'winning-shot': false
     },
 
     // Getter function that returns default values if nothing is already saved
@@ -43,12 +35,24 @@ var options = {
         localStorage[key] = val;
     },
 
+    list: function() {
+
+        var list = [];
+
+        for (var option in options.default) {
+            list.push(option);
+        }
+
+        return list;
+    },
+
+    // Returns an array of all the options
     load: function() {
 
         var loaded = {};
 
-        for (var i = 0; i < options.list.length; i++) {
-            loaded[options.list[i]] = options.get(options.list[i]);
+        for (var option in options.default) {
+            loaded[option] = options.get(option);
         }
 
         return loaded;

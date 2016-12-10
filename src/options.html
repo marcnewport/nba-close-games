@@ -17,11 +17,19 @@
             <div class="item-list">
                 <div class="item">
                     <input type="checkbox" name="range-narrow" id="range-narrow" />
-                    <label for="range-narrow">Games within 3 points</label>
+                    <label for="range-narrow">
+                        Games within
+                        <input type="number" name="range-narrow-amount" id="range-narrow-amount" max="99" />
+                        points
+                    </label>
                 </div>
                 <div class="item">
                     <input type="checkbox" name="range-wide" id="range-wide" />
-                    <label for="range-wide">Games within 5 points</label>
+                    <label for="range-wide">
+                        Games within
+                        <input type="number" name="range-wide-amount" id="range-wide-amount" max="99" />
+                        points
+                    </label>
                 </div>
                 <div class="item">
                     <input type="checkbox" name="over-time" id="over-time">

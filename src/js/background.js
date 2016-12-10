@@ -10,7 +10,9 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
       //load options handler then our manipulation code
       chrome.tabs.executeScript(null, { file:"js/options.js" }, function() {
-          chrome.tabs.executeScript(null, { file:"js/manipulate.js" });
+          chrome.tabs.executeScript(null, { file:"js/game-data.js" }, function() {
+              chrome.tabs.executeScript(null, { file:"js/manipulate.js" });
+          });
       });
 
       // This should be an option
