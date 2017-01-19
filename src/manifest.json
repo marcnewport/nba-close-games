@@ -1,4 +1,5 @@
 {
+    "manifest_version": 2,
     "name": "NBA Close Games",
     "description": "Highlight which games were within 3 points.",
     "version": "2.0.0",
@@ -16,26 +17,27 @@
         "default_icon": "icons/icon-disabled.png"
     },
     "background": {
-    "scripts": [
-        "js/background.js",
-        "js/manipulate.js",
-        "js/options.js",
-        "js/game-data.js"
-    ],
-    "persistent": false
+        "scripts": [
+            "js/background.js",
+            "js/manipulate.js"
+        ],
+        "persistent": false
     },
-    "content_scripts": [{
-    "matches": [
-        "http://watch.nba.com/"
+    "content_scripts": [
+        {
+            "matches": [
+                "https://watch.nba.com/*"
+            ],
+            "css": [
+                "css/manipulate.css"
+            ],
+            "run_at": "document_end",
+            "all_frames": true
+        }
     ],
-    "css": [
-        "css/manipulate.css"
-    ]
-    }],
     "permissions": [
         "activeTab",
         "tabs",
-        "http://stats.nba.com/"
-    ],
-    "manifest_version": 2
+        "http://stats.nba.com/*"
+    ]
 }

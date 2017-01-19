@@ -1,6 +1,8 @@
 (function() {
     /**
      * Inserts all the default options and handles the updating
+     *
+     * @todo update options
      */
     var init = function() {
         // Loop through all the input elements

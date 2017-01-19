@@ -1,75 +1,87 @@
-/*
- *
- */
 (function() {
 
-    var optionsList = options.list();
-    var listLength = optionsList.length;
+    var DIFF = 3;
+    var CUTOFF = 300;
 
-    // 'over-time': true,
-    // 'range-narrow': true,
-    // 'range-narrow-amount': 3,
-    // 'range-wide': true,
-    // 'range-wide-amount': 5,
-    // 'lead-changes': false,
-    // 'lead-changes-amount': 10,
-    // 'triple-double': false,
-    // 'winning-shot': false
+    Number.prototype.between = function (min, max) {
+        return this > min && this < max;
+    };
 
     // Loop through all the games on the page
     document.querySelectorAll('.schedule-item').forEach(function(itemEl) {
 
         var gameId = itemEl.dataset.gid;
 
-        console.log(gameId);
+        // First check if it went into OT
+        var gameEl = itemEl.querySelector('.game-situation');
+        var overtime = gameEl.innerHTML.indexOf('Final OT') >= 0;
 
-        optionsList.forEach(function(option) {
-            switch (option) {
-                case 'over-time':
-                    gameData.isOverTime(gameId);
-                    // if (options.get(option) && gameData.isOverTime()) {
-                    //
-                    // }
-                    break;
-            }
-        });
+        if (overtime) {
+            updateDOM(itemEl);
+        }
+        else {
+            chrome.runtime.sendMessage({ gameId: gameId }, function(response) {
 
+                var data = JSON.parse(response);
 
+                // Get indices of data we care about
+                // var PERIOD = data.resultSets[0].headers.indexOf('PERIOD');
+                var PCTIMESTRING = data.resultSets[0].headers.indexOf('PCTIMESTRING');
+                var SCOREMARGIN = data.resultSets[0].headers.indexOf('SCOREMARGIN');
 
+                var rows = data.resultSets[0].rowSet;
+                var length = rows.length;
+                var half = length / 2;
 
-        // // Check if the game went into overtime
-        // var gameEl = itemEl.querySelector('.game-situation');
-        // var overtime = gameEl.innerHTML === 'Final OT' ? true : false;
-        //
-        // // Retrieve the scores from the DOM
-        // var scores = itemEl.querySelectorAll('.team-score:not(.hide-score)');
-        // var awayScore = Number(scores[0].innerHTML);
-        // var homeScore = Number(scores[1].innerHTML);
-        //
-        // // Calculate the difference
-        // var pointsDiff = Math.abs(awayScore - homeScore);
-        //
-        //
-        // // TODO get game data and highlight other interesting points about the game
-        // // var gameId = '';
-        // // var gameData = 'http://stats.nba.com/stats/boxscoresummaryv2/?GameID=0021600133';
-        //
-        //
-        // // Get the elements we want to manipulate
-        // var gameInfoEl = itemEl.querySelector('.game-info');
-        // var closeGameEl = gameInfoEl.querySelectorAll('.ncge-insert');
-        //
-        // // Remove our inserted element if it's already there
-        // if (closeGameEl.length) {
-        //     gameInfoEl.removeChild(closeGameEl.item(0));
-        // }
-        // else if (overtime || pointsDiff < 3) {
-        //     // Create and insert our new element
-        //     closeGameEl = document.createElement('div');
-        //     closeGameEl.className = 'ncge-insert';
-        //     closeGameEl.innerHTML = 'Close game';
-        //
-        //     gameInfoEl.appendChild(closeGameEl);
-        // }
+                // Look through rows backwards
+                for (var i = length; i-- > half; ) {
+
+                    var margin = parseInt(rows[i][SCOREMARGIN], 10);
+
+                    if (rows[i][SCOREMARGIN] === 'TIE' || margin.between(-DIFF, DIFF)) {
+                        console.log(rows[i][PCTIMESTRING], rows[i][SCOREMARGIN]);
+                        updateDOM(itemEl);
+                        break;
+                    }
+                    else if (toSeconds(rows[i][PCTIMESTRING]) > CUTOFF) {
+                        break;
+                    }
+                }
+            });
+        }
     });
+
+
+
+    /**
+     * Converts a time string "MM:SS" into numeric seconds
+     */
+    function toSeconds(mins) {
+        var split = mins.split(':');
+        return (parseInt(split[0], 10) * 60) + parseInt(split[1], 10);
+    }
+
+
+
+    /**
+     * Inserts the DOM element
+     */
+    function updateDOM(itemEl) {
+        // Get the elements we want to manipulate
+        var gameInfoEl = itemEl.querySelector('.game-info');
+        var closeGameEl = gameInfoEl.querySelectorAll('.ncge-insert');
+
+        // TODO : this decision needs to be made earlier
+        // Remove our inserted element if it's already there
+        if (closeGameEl.length) {
+            gameInfoEl.removeChild(closeGameEl.item(0));
+        }
+        else {
+            // Create and insert our new element
+            closeGameEl = document.createElement('div');
+            closeGameEl.className = 'ncge-insert';
+            closeGameEl.innerHTML = 'Close game';
+            gameInfoEl.appendChild(closeGameEl);
+        }
+    }
 })();
