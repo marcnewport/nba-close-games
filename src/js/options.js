@@ -7,11 +7,12 @@ var options = {
 
     // Our default values
     default: {
+        'enabled': false,
         'over-time': true,
-        'range-narrow': true,
-        'range-narrow-amount': 3,
-        'range-wide': true,
-        'range-wide-amount': 5,
+        'range': true,
+        'range-amount': 3,
+        'time': true,
+        'time-amount': 300,
         'lead-changes': false,
         'lead-changes-amount': 10,
         'triple-double': false,

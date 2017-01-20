@@ -1,23 +1,42 @@
-(function() {
 
-    var DIFF = 3;
-    var CUTOFF = 300;
+var DIFF = 3;
+var CUTOFF = 300;
 
-    Number.prototype.between = function (min, max) {
-        return this > min && this < max;
-    };
+// console.log(options.get('enabled'));
+
+if (options.get('enabled')) {
+    destroy();
+}
+else {
+    init();
+}
+
+
+
+/**
+ * Modify the page
+ */
+function init() {
+    console.log('init');
+    // Toggle enabled
+    options.set('enabled', true);
+    chrome.runtime.sendMessage({ enableIcon: true });
+
+    // Listen for date change
+    var $gameDate = document.querySelector('.game-date');
+    $gameDate.addEventListener('DOMSubtreeModified', dateChangedHandler);
 
     // Loop through all the games on the page
-    document.querySelectorAll('.schedule-item').forEach(function(itemEl) {
+    document.querySelectorAll('.schedule-item').forEach(function($item) {
 
-        var gameId = itemEl.dataset.gid;
+        var gameId = $item.dataset.gid;
 
         // First check if it went into OT
-        var gameEl = itemEl.querySelector('.game-situation');
-        var overtime = gameEl.innerHTML.indexOf('Final OT') >= 0;
+        var $game = $item.querySelector('.game-situation');
+        var overtime = $game.innerHTML.indexOf('Final OT') >= 0;
 
         if (overtime) {
-            updateDOM(itemEl);
+            updateDOM($item);
         }
         else {
             chrome.runtime.sendMessage({ gameId: gameId }, function(response) {
@@ -40,7 +59,7 @@
 
                     if (rows[i][SCOREMARGIN] === 'TIE' || margin.between(-DIFF, DIFF)) {
                         console.log(rows[i][PCTIMESTRING], rows[i][SCOREMARGIN]);
-                        updateDOM(itemEl);
+                        insertElement($item);
                         break;
                     }
                     else if (toSeconds(rows[i][PCTIMESTRING]) > CUTOFF) {
@@ -50,38 +69,62 @@
             });
         }
     });
+}
 
 
 
-    /**
-     * Converts a time string "MM:SS" into numeric seconds
-     */
-    function toSeconds(mins) {
-        var split = mins.split(':');
-        return (parseInt(split[0], 10) * 60) + parseInt(split[1], 10);
-    }
+/**
+ * Inserts the DOM elements for a game
+ */
+function insertElement($item) {
+    // Toggle enabled
+    options.set('enabled', false);
+    chrome.runtime.sendMessage({ disableIcon: true });
+
+    var $gameInfo = $item.querySelector('.game-info');
+    var $insert = document.createElement('div');
+
+    $insert.className = 'ncge-insert';
+    $insert.innerHTML = 'Close game';
+    $gameInfo.appendChild($insert);
+}
 
 
 
-    /**
-     * Inserts the DOM element
-     */
-    function updateDOM(itemEl) {
-        // Get the elements we want to manipulate
-        var gameInfoEl = itemEl.querySelector('.game-info');
-        var closeGameEl = gameInfoEl.querySelectorAll('.ncge-insert');
-
-        // TODO : this decision needs to be made earlier
-        // Remove our inserted element if it's already there
-        if (closeGameEl.length) {
-            gameInfoEl.removeChild(closeGameEl.item(0));
+/**
+ * Handle a date change event
+ */
+function dateChangedHandler() {
+    // Wait half asecond for the DOM to finish updating
+    setTimeout(function() {
+        if (options.get('enabled')) {
+            init();
         }
-        else {
-            // Create and insert our new element
-            closeGameEl = document.createElement('div');
-            closeGameEl.className = 'ncge-insert';
-            closeGameEl.innerHTML = 'Close game';
-            gameInfoEl.appendChild(closeGameEl);
+    }, 500);
+
+    // Remove the handler immediately
+    var $gameDate = document.querySelector('.game-date');
+    $gameDate.removeEventListener('DOMSubtreeModified', dateChangedHandler);
+}
+
+
+
+/**
+ * Remove our modifications
+ */
+function destroy() {
+    // console.log('destroy');
+    var $gameDate = document.querySelector('.game-date');
+    $gameDate.removeEventListener('DOMSubtreeModified', dateChangedHandler);
+
+    // Remove all inserted elements
+    document.querySelectorAll('.schedule-item').forEach(function($item) {
+
+        var $gameInfo = $item.querySelector('.game-info');
+        var $insert = $gameInfo.querySelector('.ncge-insert');
+
+        if ($insert) {
+            $gameInfo.removeChild($insert);
         }
-    }
-})();
+    });
+}

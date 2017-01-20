@@ -27,8 +27,12 @@ body {
     border-bottom: 1px solid #dedede;
 }
 
+.indent {
+    padding-left: 2.7em;
+}
+
 input[type="number"] {
-    width: 40px;
+    width: 45px;
     font-size: 16px;
     text-align: center;
 }

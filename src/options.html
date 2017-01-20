@@ -14,27 +14,33 @@
             <h1 class="page-title">NBA Close Games options</h1>
             <!-- <p class="page-instruction">Choose which things:</p> -->
 
+            <p class="instruction">Show a close game badge for:</p>
+
             <div class="item-list">
-                <div class="item">
-                    <input type="checkbox" name="range-narrow" id="range-narrow" />
-                    <label for="range-narrow">
-                        Games within
-                        <input type="number" name="range-narrow-amount" id="range-narrow-amount" max="99" />
-                        points
-                    </label>
-                </div>
-                <div class="item">
-                    <input type="checkbox" name="range-wide" id="range-wide" />
-                    <label for="range-wide">
-                        Games within
-                        <input type="number" name="range-wide-amount" id="range-wide-amount" max="99" />
-                        points
-                    </label>
-                </div>
                 <div class="item">
                     <input type="checkbox" name="over-time" id="over-time">
                     <label for="over-time">Games that go into over time</label>
                 </div>
+                <div class="item">
+                    <input type="checkbox" name="range" id="range" />
+                    <label for="range">
+                        Games within
+                        <input type="number" name="range-amount" id="range-amount" max="99" />
+                        points
+                    </label>
+                </div>
+                <div class="item indent">
+                    <input type="checkbox" name="time" id="time" />
+                    <label for="range-wide">
+                        in the last
+                        <input type="number" name="time-amount" id="time-amount" max="999" />
+                        seconds
+                    </label>
+                </div>
+            </div>
+
+            <!-- <p class="instruction">Show badges for:</p>
+            <div class="item-list">
                 <div class="item">
                     <input type="checkbox" name="lead-changes" id="lead-changes">
                     <label for="lead-changes">
@@ -51,7 +57,7 @@
                     <input type="checkbox" name="winning-shot" id="winning-shot">
                     <label for="winning-shot">Game winning shot</label>
                 </div>
-            </div>
+            </div> -->
         </div>
     </body>
 </html>
