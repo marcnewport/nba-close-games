@@ -1,44 +1,48 @@
 
-var DIFF = 3;
-var CUTOFF = 300;
-
-// console.log(options.get('enabled'));
-
+// Decide which function to run,
+// but delay it slightly so icon doesnt have to load asychronously
 if (options.get('enabled')) {
-    destroy();
+    chrome.runtime.sendMessage({ disableIcon: true });
+    setTimeout(destroy, 200);
 }
 else {
-    init();
+    chrome.runtime.sendMessage({ enableIcon: true });
+    setTimeout(init, 200);
 }
 
 
 
 /**
- * Modify the page
+ * Gets game data and analyses for close games
  */
 function init() {
-    console.log('init');
-    // Toggle enabled
-    options.set('enabled', true);
-    chrome.runtime.sendMessage({ enableIcon: true });
 
-    // Listen for date change
-    var $gameDate = document.querySelector('.game-date');
-    $gameDate.addEventListener('DOMSubtreeModified', dateChangedHandler);
+    console.log('init');
+
+    var overtime = options.get('over-time');
+    var range = options.get('range');
+    var rangeAmount = options.get('range-amount');
+    var timeAmount = options.get('time-amount');
 
     // Loop through all the games on the page
     document.querySelectorAll('.schedule-item').forEach(function($item) {
 
         var gameId = $item.dataset.gid;
 
-        // First check if it went into OT
-        var $game = $item.querySelector('.game-situation');
-        var overtime = $game.innerHTML.indexOf('Final OT') >= 0;
-
+        // First check if it went into OT as its more efficient
         if (overtime) {
-            updateDOM($item);
+
+            var $game = $item.querySelector('.game-situation');
+            var isOvertime = $game.innerHTML.indexOf('Final OT') >= 0;
+
+            if (isOvertime) {
+                console.log(gameId, 'OVERTIME');
+                updateGameElement($item);
+                return;
+            }
         }
-        else {
+
+        if (range) {
             chrome.runtime.sendMessage({ gameId: gameId }, function(response) {
 
                 var data = JSON.parse(response);
@@ -57,18 +61,38 @@ function init() {
 
                     var margin = parseInt(rows[i][SCOREMARGIN], 10);
 
-                    if (rows[i][SCOREMARGIN] === 'TIE' || margin.between(-DIFF, DIFF)) {
-                        console.log(rows[i][PCTIMESTRING], rows[i][SCOREMARGIN]);
-                        insertElement($item);
+                    if (rows[i][SCOREMARGIN] === 'TIE' || margin.between(-rangeAmount, rangeAmount)) {
+                        console.log(gameId, rows[i][PCTIMESTRING], rows[i][SCOREMARGIN]);
+                        updateGameElement($item);
                         break;
                     }
-                    else if (toSeconds(rows[i][PCTIMESTRING]) > CUTOFF) {
+                    else if (toSeconds(rows[i][PCTIMESTRING]) > timeAmount) {
+                        console.log(gameId, 'BLOWOUT');
                         break;
                     }
                 }
             });
         }
     });
+
+    // Listen for date change
+    var $gameDate = document.querySelector('.game-date');
+    $gameDate.addEventListener('DOMSubtreeModified', dateChangedHandler);
+
+    options.set('enabled', true);
+}
+
+
+
+function dateChangedHandler() {
+
+    if (options.get('enabled')) {
+        // Wait a half asecond for the DOM to finish updating
+        setTimeout(init, 500);
+    }
+
+    // Remove the handler immediately
+    this.removeEventListener('DOMSubtreeModified', dateChangedHandler);
 }
 
 
@@ -76,10 +100,7 @@ function init() {
 /**
  * Inserts the DOM elements for a game
  */
-function insertElement($item) {
-    // Toggle enabled
-    options.set('enabled', false);
-    chrome.runtime.sendMessage({ disableIcon: true });
+function updateGameElement($item) {
 
     var $gameInfo = $item.querySelector('.game-info');
     var $insert = document.createElement('div');
@@ -92,28 +113,12 @@ function insertElement($item) {
 
 
 /**
- * Handle a date change event
- */
-function dateChangedHandler() {
-    // Wait half asecond for the DOM to finish updating
-    setTimeout(function() {
-        if (options.get('enabled')) {
-            init();
-        }
-    }, 500);
-
-    // Remove the handler immediately
-    var $gameDate = document.querySelector('.game-date');
-    $gameDate.removeEventListener('DOMSubtreeModified', dateChangedHandler);
-}
-
-
-
-/**
  * Remove our modifications
  */
 function destroy() {
-    // console.log('destroy');
+    
+    console.log('destroy');
+
     var $gameDate = document.querySelector('.game-date');
     $gameDate.removeEventListener('DOMSubtreeModified', dateChangedHandler);
 
@@ -127,4 +132,6 @@ function destroy() {
             $gameInfo.removeChild($insert);
         }
     });
+
+    options.set('enabled', false);
 }
