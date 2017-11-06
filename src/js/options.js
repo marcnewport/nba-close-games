@@ -10,30 +10,31 @@ var options = {
         'enabled': false,
         'over-time': true,
         'range': true,
-        'range-amount': 3,
+        'range-amount': 5,
         'time': true,
-        'time-amount': 300,
+        'time-amount': 120,
+        'clutch': true,
+        'clutch-over-time': true,
+        
         'lead-changes': false,
         'lead-changes-amount': 10,
-        'triple-double': false,
-        'winning-shot': false
+        'triple-double': false
     },
 
-    // Getter function that returns default values if nothing is already saved
+    cache: {},
+
+    // Getter function
     get: function(key) {
-
-        var val = options.default[key];
-
-        if (localStorage[key]) {
-            val = JSON.parse(localStorage[key]);
-        }
-
-        return val;
+        return options.cache[key];
     },
 
     // Setter function...
     set: function(key, val) {
-        localStorage[key] = val;
+        options.cache[key] = val;
+        chrome.storage.sync.set({ marc: 'cool' });
+        chrome.storage.sync.set({ 'ncge-options': options.cache }, function() {
+            // console.log('setting', key, val);
+        });
     },
 
     list: function() {
@@ -48,14 +49,10 @@ var options = {
     },
 
     // Returns an array of all the options
-    load: function() {
-
-        var loaded = {};
-
-        for (var option in options.default) {
-            loaded[option] = options.get(option);
-        }
-
-        return loaded;
+    load: function(callback) {
+        chrome.storage.sync.get('ncge-options', function(items) {
+             Object.assign(options.cache, options.default, items['ncge-options']);
+             if (callback) callback();
+        });
     }
 };

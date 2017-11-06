@@ -5,6 +5,7 @@
         <title>Options | NBA Close Games</title>
 
         <link rel="stylesheet" href="css/options.css" >
+        <link rel="stylesheet" href="css/manipulate.css" >
 
         <script src="js/options.js"></script>
         <script src="js/options-init.js"></script>
@@ -14,7 +15,7 @@
             <h1 class="page-title">NBA Close Games options</h1>
             <!-- <p class="page-instruction">Choose which things:</p> -->
 
-            <p class="instruction">Show a close game badge for:</p>
+            <p class="instruction">Show a <span class="ncge-badge ncge-badge--close">Close</span> badge for:</p>
 
             <div class="item-list">
                 <div class="item">
@@ -36,6 +37,19 @@
                         <input type="number" name="time-amount" id="time-amount" max="999" />
                         seconds
                     </label>
+                </div>
+            </div>
+
+            <p class="instruction">Show a <span class="ncge-badge ncge-badge--clutch">clutch</span> badge for:</p>
+
+            <div class="item-list">
+                <div class="item">
+                    <input type="checkbox" name="clutch" id="clutch">
+                    <label for="clutch">Game within 3 points</label>
+                </div>
+                <div class="item">
+                    <input type="checkbox" name="ls-over-time" id="ls-over-time">
+                    <label for="ls-over-time">Games that go into over time</label>
                 </div>
             </div>
 

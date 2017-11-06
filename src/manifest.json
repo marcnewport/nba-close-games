@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
     "name": "NBA Close Games",
-    "description": "Highlight which games were within 3 points.",
-    "version": "2.0.0",
+    "description": "A chrome extension for http://watch.nba.com that highlights if a game was close based on your settings. Useful if you don't watch the games live and have spoilers turned off.",
+    "version": "2.1.0",
     "options_page": "options.html",
     "icons": {
         "16": "icons/icon16.png",
@@ -40,6 +40,7 @@
     "permissions": [
         "activeTab",
         "tabs",
+        "storage",
         "http://stats.nba.com/*"
     ]
 }

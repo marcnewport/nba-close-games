@@ -1,13 +1,28 @@
-.ncge-insert {
+.ncge-badges {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+}
+
+.ncge-badge {
+    color: #333333;
+    background-color: #F2F2F2;
     text-align: center;
-    text-shadow: 0 -1px #400919;
+    font-size: 12px;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    margin: 0 5px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.ncge-badge--close {
     color: #FFFFFF;
     background-color: #D71E54;
-    font-size: 15px;
-    padding: 2px 10px;
-    position: absolute;
-    left: 50%;
-    bottom: 10px;
-    transform: translateX(-50%);
-    border-radius: 2px;
+}
+
+.ncge-badge--clutch {
+    color: #FFFFFF;
+    background-color: #1d428a;
 }
