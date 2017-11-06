@@ -32,8 +32,8 @@ function create() {
     var range = options.get('range');
     var rangeAmount = options.get('range-amount');
     var timeAmount = options.get('time-amount');
-    var lastShot = options.get('clutch');
-    var lsOvertime = options.get('clutch-over-time');
+    var clutch = options.get('clutch');
+    var clutchOvertime = options.get('clutch-over-time');
 
     // Loop through all the games on the page
     document.querySelectorAll('.schedule-item').forEach(function($item) {
@@ -43,13 +43,13 @@ function create() {
         var teams = teamIds.map(el => el.dataset.id).join(' ');
 
         // First check if it went into OT as its more efficient
-        if (overtime || lsOvertime) {
+        if (overtime || clutchOvertime) {
             var $game = $item.querySelector('.game-situation');
             var isOvertime = $game.innerHTML.indexOf('Final OT') >= 0;
 
             if (isOvertime) {
                 console.log(gameId, teams, 'OVERTIME');
-                if (lsOvertime) {
+                if (clutchOvertime) {
                     insertBadge($item, 'clutch');
                 }
                 if (overtime) {
@@ -76,7 +76,7 @@ function create() {
             var timeLeft = 0;
             var margin = Math.abs(parseInt(rows[length - 1][SCOREMARGIN], 10), 0);
 
-            if (lastShot && margin <= 3) {
+            if (clutch && margin <= 3) {
                 console.log(gameId, teams, timeLeft, 's,' , margin);
                 insertBadge($item, 'clutch');
             }
