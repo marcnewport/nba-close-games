@@ -1,6 +1,6 @@
 {
   "name": "nba-close-games",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A chrome extension for http://watch.nba.com that highlights if a game was close based on your settings. Useful if you don't watch the games live and have spoilers turned off.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
