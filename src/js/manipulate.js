@@ -45,17 +45,19 @@ function create() {
         // First check if it went into OT as its more efficient
         if (overtime || clutchOvertime) {
             var $game = $item.querySelector('.game-situation');
-            var isOvertime = $game.innerHTML.indexOf('Final OT') >= 0;
+            if ($game) {
+                var isOvertime = $game.innerHTML.indexOf('Final OT') >= 0;
 
-            if (isOvertime) {
-                console.log(gameId, teams, 'OVERTIME');
-                if (clutchOvertime) {
-                    insertBadge($item, 'clutch');
+                if (isOvertime) {
+                    console.log(gameId, teams, 'OVERTIME');
+                    if (clutchOvertime) {
+                        insertBadge($item, 'clutch');
+                    }
+                    if (overtime) {
+                        insertBadge($item, 'close');
+                    }
+                    return;
                 }
-                if (overtime) {
-                    insertBadge($item, 'close');
-                }
-                return;
             }
         }
 
