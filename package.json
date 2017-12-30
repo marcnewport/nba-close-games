@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/marcnewport/nba-close-games/issues"
   },
-  "homepage": "https://github.com/marcnewport/nba-close-games#readme"
+  "homepage": "https://github.com/marcnewport/nba-close-games#readme",
+  "devDependencies": {
+    "nba.js": "^0.5.0"
+  }
 }
