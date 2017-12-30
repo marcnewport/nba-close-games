@@ -1,8 +1,9 @@
 .ncge-badges {
     position: absolute;
-    bottom: 20px;
+    bottom: 10px;
     left: 0;
     width: 100%;
+    z-index: 101;
 }
 
 .ncge-badge {
@@ -25,4 +26,10 @@
 .ncge-badge--clutch {
     color: #FFFFFF;
     background-color: #1d428a;
+}
+
+.ncge-badge--wiki {
+    color: #c3391d;
+    background-color: #f0f1f2;
+    font-weight: bold;
 }

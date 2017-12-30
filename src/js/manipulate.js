@@ -28,10 +28,13 @@ function create() {
 
     console.log('create');
 
+    // TODO show loading animation on game elements
+
     var overtime = options.get('over-time');
     var range = options.get('range');
     var rangeAmount = options.get('range-amount');
     var timeAmount = options.get('time-amount');
+    var wiki = options.get('wiki');
     var clutch = options.get('clutch');
     var clutchOvertime = options.get('clutch-over-time');
 
@@ -39,6 +42,18 @@ function create() {
     document.querySelectorAll('.schedule-item').forEach(function($item) {
 
         var gameId = $item.dataset.gid;
+        var gameDate = $item.getAttribute('onclick').substring(18, 26);
+        var gamePath = $item.getAttribute('onclick').substring(18, 33);
+
+        var sendData = {
+            gameId: gameId,
+            gameDate: gameDate,
+            gamePath: gamePath
+        };
+
+        var clutchCalculated = false;
+        var closeCalculated = false;
+
         var teamIds = Array.from($item.querySelectorAll('[data-id]'));
         var teams = teamIds.map(el => el.dataset.id).join(' ');
 
@@ -51,39 +66,41 @@ function create() {
                 if (isOvertime) {
                     console.log(gameId, teams, 'OVERTIME');
                     if (clutchOvertime) {
-                        insertBadge($item, 'clutch');
+                        insertBadge($item, 'clutch', 'Clutch');
+                        clutchCalculated = true;
                     }
                     if (overtime) {
-                        insertBadge($item, 'close');
+                        insertBadge($item, 'close', 'Close');
+                        closeCalculated = true;
                     }
-                    return;
                 }
             }
         }
 
-        chrome.runtime.sendMessage({ gameId: gameId }, function(response) {
+        chrome.runtime.sendMessage(sendData, function(res) {
 
-            var data = JSON.parse(response);
+            var playbyplay = res.playbyplay;
+            // var boxscore = data.boxscore;
 
-            // Get indices of data we care about
-            // var PERIOD = data.resultSets[0].headers.indexOf('PERIOD');
-            var PCTIMESTRING = data.resultSets[0].headers.indexOf('PCTIMESTRING');
-            var SCOREMARGIN = data.resultSets[0].headers.indexOf('SCOREMARGIN');
-            var SCORE = data.resultSets[0].headers.indexOf('SCORE');
+            // Get indices of playbyplay we care about
+            // var PERIOD = playbyplay.resultSets[0].headers.indexOf('PERIOD');
+            var PCTIMESTRING = playbyplay.resultSets[0].headers.indexOf('PCTIMESTRING');
+            var SCOREMARGIN = playbyplay.resultSets[0].headers.indexOf('SCOREMARGIN');
+            var SCORE = playbyplay.resultSets[0].headers.indexOf('SCORE');
 
-            var rows = data.resultSets[0].rowSet;
+            var rows = playbyplay.resultSets[0].rowSet;
             var length = rows.length;
             var half = length / 2;
 
             var timeLeft = 0;
             var margin = Math.abs(parseInt(rows[length - 1][SCOREMARGIN], 10), 0);
 
-            if (clutch && margin <= 3) {
+            if (! clutchCalculated && clutch && margin <= 3) {
                 console.log(gameId, teams, timeLeft, 's,' , margin);
-                insertBadge($item, 'clutch');
+                insertBadge($item, 'clutch', 'Clutch');
             }
 
-            if (range) {
+            if (! closeCalculated && range) {
                 // Look through rows backwards
                 for (var i = length; i-- > half; ) {
                     timeLeft = toSeconds(rows[i][PCTIMESTRING]);
@@ -94,16 +111,23 @@ function create() {
                         margin = Math.abs(parseInt(rows[i][SCOREMARGIN], 10), 0);
                     }
 
+                    // TODO Calculate clutch moments
+
                     if (margin <= rangeAmount) {
                         console.log(gameId, teams, timeLeft, 's,' , margin);
-                        insertBadge($item, 'close');
-                        return;
+                        insertBadge($item, 'close', 'Close');
+                        break;
                     }
                     else if (timeLeft > timeAmount) {
                         console.log(gameId, teams, timeLeft, 's,' , margin);
                         break;
                     }
                 }
+            }
+
+            if (wiki) {
+                console.log(gameId, teams, 'votes', res.wikiVotes);
+                insertBadge($item, 'wiki', res.wikiVotes);
             }
         });
     });
@@ -134,7 +158,7 @@ function dateChangedHandler() {
 /**
  * Inserts the DOM elements for a game
  */
-function insertBadge(el, name) {
+function insertBadge(el, type, content) {
 
     var info = el.querySelector('.game-info');
     var badges = info.querySelector('.ncge-badges');
@@ -146,12 +170,22 @@ function insertBadge(el, name) {
     }
 
     var badge = document.createElement('div');
-    var slug = name.toLowerCase().replace(' ', '-');
 
-    badge.className = 'ncge-badge ncge-badge--'+ slug;
-    badge.innerHTML = name;
+    badge.className = 'ncge-badge ncge-badge--'+ type;
+    badge.innerHTML = content;
 
-    badges.appendChild(badge);
+    if (type === 'wiki') {
+        var link = document.createElement('a');
+        link.setAttribute('href', 'https://wikihoops.com');
+        link.setAttribute('target', '_blank');
+        link.setAttribute('title', 'Wikihoops votes');
+
+        link.appendChild(badge);
+        badges.appendChild(link);
+    }
+    else {
+        badges.appendChild(badge);
+    }
 }
 
 
