@@ -13,8 +13,8 @@ var options = {
         'range-amount': 5,
         'time': true,
         'time-amount': 120,
-        'clutch': true,
-        'clutch-over-time': true,
+        'clutch': false,
+        'clutch-over-time': false,
         'wiki': true,
 
         'lead-changes': false,

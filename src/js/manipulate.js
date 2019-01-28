@@ -28,28 +28,50 @@ function create() {
 
     console.log('create');
 
-    // TODO show loading animation on game elements
-
-    var overtime = options.get('over-time');
-    var range = options.get('range');
-    var rangeAmount = options.get('range-amount');
-    var timeAmount = options.get('time-amount');
-    var wiki = options.get('wiki');
-    var clutch = options.get('clutch');
-    var clutchOvertime = options.get('clutch-over-time');
+    const overtime = options.get('over-time');
+    const range = options.get('range');
+    const rangeAmount = options.get('range-amount');
+    const timeAmount = options.get('time-amount');
+    const wiki = options.get('wiki');
+    const clutch = options.get('clutch');
+    const clutchOvertime = options.get('clutch-over-time');
 
     // Loop through all the games on the page
-    document.querySelectorAll('.schedule-item').forEach(function($item) {
+    document.querySelectorAll('.schedule-item').forEach(async function($item) {
 
-        var gameId = $item.dataset.gid;
-        var gameDate = $item.getAttribute('onclick').substring(18, 26);
-        var gamePath = $item.getAttribute('onclick').substring(18, 33);
+        const badges = document.createElement('div');
+        badges.className = 'ncge-badges ncge-badges--loading';
 
-        var sendData = {
-            gameId: gameId,
-            gameDate: gameDate,
-            gamePath: gamePath
-        };
+        const info = $item.querySelector('.game-info');
+        info.appendChild(badges);
+
+        const gameId = $item.dataset.gid;
+        const gameDate = $item.getAttribute('onclick').substring(18, 26);
+        const gameYear = gameDate.slice(0, 4);
+        const gameMonth = gameDate.slice(4, 6);
+        const gameDay = gameDate.slice(6, 8);
+        const gameTeams = $item.getAttribute('onclick').substring(27, 33);
+        const gameTeamAway = gameTeams.slice(0, 3);
+        const gameTeamHome = gameTeams.slice(3, 6);
+
+        const pbpUrl = 'https://stats.nba.com/stats/playbyplayv2/?GameID='+ gameId +'&StartPeriod=0&EndPeriod=0';
+
+        const playbyplay = await fetch(pbpUrl)
+          .then(response => response.json())
+          .then(data => data)
+          .catch(error => console.error(error));
+
+        var PERIOD = playbyplay.resultSets[0].headers.indexOf('PERIOD');
+        var PCTIMESTRING = playbyplay.resultSets[0].headers.indexOf('PCTIMESTRING');
+        var SCOREMARGIN = playbyplay.resultSets[0].headers.indexOf('SCOREMARGIN');
+        var SCORE = playbyplay.resultSets[0].headers.indexOf('SCORE');
+
+        var rows = playbyplay.resultSets[0].rowSet;
+        var length = rows.length;
+        var half = length / 2;
+
+        var timeLeft = 0;
+        var margin = Math.abs(parseInt(rows[length - 1][SCOREMARGIN], 10), 0);
 
         var clutchCalculated = false;
         var closeCalculated = false;
@@ -57,118 +79,86 @@ function create() {
         var teamIds = Array.from($item.querySelectorAll('[data-id]'));
         var teams = teamIds.map(el => el.dataset.id).join(' ');
 
-        // First check if it went into OT as its more efficient
-        if (overtime || clutchOvertime) {
-            var $game = $item.querySelector('.game-situation');
-            if ($game) {
-                var isOvertime = $game.innerHTML.indexOf('Final OT') >= 0;
+        // Look through rows backwards
+        for (var i = length - 1; i > half; i--) {
+          timeLeft = toSeconds(rows[i][PCTIMESTRING]);
 
-                if (isOvertime) {
-                    console.log(gameId, teams, 'OVERTIME');
-                    if (clutchOvertime) {
-                        insertBadge($item, 'clutch', 'Clutch');
-                        clutchCalculated = true;
-                    }
-                    if (overtime) {
-                        insertBadge($item, 'close', 'Close');
-                        closeCalculated = true;
-                    }
-                }
-            }
+          if (rows[i][SCOREMARGIN] === 'TIE') {
+            margin = 0;
+          } else if (rows[i][SCOREMARGIN]) {
+            margin = Math.abs(parseInt(rows[i][SCOREMARGIN], 10), 0);
+          }
+
+          // TODO Calculate clutch moments
+          
+          if (overtime && rows[i][PERIOD] > 4) {
+            // console.log(gameId, teams, 'PERIOD', rows[i][PERIOD]);
+            insertBadge(badges, 'close', 'Close');
+            break;
+          } else if (margin <= rangeAmount) {
+            // console.log(gameId, teams, timeLeft, 's,' , margin);
+            insertBadge(badges, 'close', 'Close');
+            break;
+          } else if (timeLeft > timeAmount) {
+            // console.log(gameId, teams, timeLeft, 's,' , margin);
+            break;
+          }
         }
 
-        chrome.runtime.sendMessage(sendData, function(res) {
+        if (wiki) {
+          const gamePathDate = [
+            gameYear,
+            gameMonth,
+            gameDay
+          ].join('-');
+          const gamePathTeams = [
+            gameTeamAway,
+            gameTeamHome
+          ].join('-');
+          const wikiUrl = 'https://wikihoops.com/games/' + gamePathDate + '/' + gamePathTeams;
 
-            var playbyplay = res.playbyplay;
-            // var boxscore = data.boxscore;
+          const wikiData = await fetch(wikiUrl)
+            .then(response => response.text())
+            .then(data => data)
+            .catch(error => console.error(error));
 
-            // Get indices of playbyplay we care about
-            // var PERIOD = playbyplay.resultSets[0].headers.indexOf('PERIOD');
-            var PCTIMESTRING = playbyplay.resultSets[0].headers.indexOf('PCTIMESTRING');
-            var SCOREMARGIN = playbyplay.resultSets[0].headers.indexOf('SCOREMARGIN');
-            var SCORE = playbyplay.resultSets[0].headers.indexOf('SCORE');
+          const wikiHTML = document.createElement('div');
+          wikiHTML.innerHTML = wikiData;
+          const wikiVotes = wikiHTML.querySelector('.votes .ratingValue').innerText;
 
-            var rows = playbyplay.resultSets[0].rowSet;
-            var length = rows.length;
-            var half = length / 2;
-
-            var timeLeft = 0;
-            var margin = Math.abs(parseInt(rows[length - 1][SCOREMARGIN], 10), 0);
-
-            if (! clutchCalculated && clutch && margin <= 3) {
-                console.log(gameId, teams, timeLeft, 's,' , margin);
-                insertBadge($item, 'clutch', 'Clutch');
-            }
-
-            if (! closeCalculated && range) {
-                // Look through rows backwards
-                for (var i = length; i-- > half; ) {
-                    timeLeft = toSeconds(rows[i][PCTIMESTRING]);
-                    if (rows[i][SCOREMARGIN] === 'TIE') {
-                        margin = 0;
-                    }
-                    else if (rows[i][SCOREMARGIN]) {
-                        margin = Math.abs(parseInt(rows[i][SCOREMARGIN], 10), 0);
-                    }
-
-                    // TODO Calculate clutch moments
-
-                    if (margin <= rangeAmount) {
-                        console.log(gameId, teams, timeLeft, 's,' , margin);
-                        insertBadge($item, 'close', 'Close');
-                        break;
-                    }
-                    else if (timeLeft > timeAmount) {
-                        console.log(gameId, teams, timeLeft, 's,' , margin);
-                        break;
-                    }
-                }
-            }
-
-            if (wiki) {
-                console.log(gameId, teams, 'votes', res.wikiVotes);
-                insertBadge($item, 'wiki', res.wikiVotes);
-            }
-        });
+          insertBadge(badges, 'wiki', wikiVotes);
+        }
     });
 
     // Listen for date change
-    var $gameDate = document.querySelector('.game-date');
-    $gameDate.addEventListener('DOMSubtreeModified', dateChangedHandler);
+    // var $gameDate = document.querySelector('.game-date');
+    // $gameDate.addEventListener('DOMSubtreeModified', dateChangedHandler);
 
     options.set('enabled', true);
 }
 
 
 
-function dateChangedHandler() {
-    console.log('change');
-
-    if (options.get('enabled')) {
-        // Wait a half asecond for the DOM to finish updating
-        setTimeout(init, 500);
-    }
-
-    // Remove the handler immediately
-    this.removeEventListener('DOMSubtreeModified', dateChangedHandler);
-}
+// function dateChangedHandler() {
+//     console.log('change');
+//
+//     if (options.get('enabled')) {
+//         // Wait a half asecond for the DOM to finish updating
+//         setTimeout(init, 500);
+//     }
+//
+//     // Remove the handler immediately
+//     this.removeEventListener('DOMSubtreeModified', dateChangedHandler);
+// }
 
 
 
 /**
  * Inserts the DOM elements for a game
  */
-function insertBadge(el, type, content) {
+function insertBadge(badges, type, content) {
 
-    var info = el.querySelector('.game-info');
-    var badges = info.querySelector('.ncge-badges');
-
-    if (! badges) {
-        badges = document.createElement('div');
-        badges.className = 'ncge-badges';
-        info.appendChild(badges);
-    }
-
+    badges.classList.remove('ncge-badges--loading');
     var badge = document.createElement('div');
 
     badge.className = 'ncge-badge ncge-badge--'+ type;
@@ -197,8 +187,8 @@ function destroy() {
 
     console.log('destroy');
 
-    var $gameDate = document.querySelector('.game-date');
-    $gameDate.removeEventListener('DOMSubtreeModified', dateChangedHandler);
+    // var $gameDate = document.querySelector('.game-date');
+    // $gameDate.removeEventListener('DOMSubtreeModified', dateChangedHandler);
 
     // Remove all inserted elements
     document.querySelectorAll('.schedule-item').forEach(function($item) {

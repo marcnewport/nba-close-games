@@ -6,6 +6,11 @@
     z-index: 101;
 }
 
+.ncge-badges--loading {
+    /* background: red;
+    height: 20px; */
+}
+
 .ncge-badge {
     color: #333333;
     background-color: #F2F2F2;

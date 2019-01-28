@@ -1,0 +1,10 @@
+http://stats.nba.com/stats/playbyplayv2/?GameID=0021700496&StartPeriod=0&EndPeriod=0
+http://data.nba.net/data/10s/prod/v1/20171225/0021700496_pbp_4.json
+
+http://data.nba.net/data/10s/prod/v1/20171225/0021700496_mini_boxscore.json
+http://data.nba.net/data/10s/prod/v1/20171225/0021700496_boxscore.json
+
+http://data.nba.net/data/10s/prod/v1/20171225/standings_all_no_sort_keys.json
+
+https://github.com/kshvmdn/nba.js/blob/master/docs/api/DATA.md
+https://github.com/kshvmdn/nba.js/blob/master/docs/api/STATS.md
